@@ -65,6 +65,7 @@ local api = {
     ---@param args {y_coord: number} --y level registering floor
     registerFloor = function (c_id, args)
         local y_coord = args.y_coord
+        print("--Floor at Y = "..y_coord)
         --Check if floor already registered
         local result = table.listFind(state.registeredFloors, function (a)
             return a.c_id == c_id

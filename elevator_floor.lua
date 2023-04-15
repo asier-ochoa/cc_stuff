@@ -5,6 +5,7 @@ local Y_HEIGHT = 30
 local C_ID = os.getComputerID()
 
 ----------------------HELPER FUNCTIONS-----------
+--TODO: Add a timeout param
 local function request(modem, port, data)
     modem.transmit(SEND_PORT, SEND_PORT, data)
     local _, response, channel = nil, nil, nil
@@ -16,6 +17,13 @@ end
 
 
 local prty = require "cc.pretty"
+
+if type(tonumber(arg[1])) ~= "number" then
+    print("Usage:\n  elevator_floor <floor height:int>")
+else
+    Y_HEIGHT = tonumber(arg[1])
+    print("Floor is at height "..Y_HEIGHT)
+end
 
 local modem = peripheral.find("modem")
 modem.closeAll()
