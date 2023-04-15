@@ -10,7 +10,7 @@ local function request(modem, port, data)
     local _, response, channel = nil, nil, nil
     repeat
         _, _, channel, _, response = os.pullEvent("modem_message")
-    until channel == port and response ~= nil and response.recipient == C_ID
+    until channel == port and (response ~= nil or response.recipient == C_ID)
     return response
 end
 
