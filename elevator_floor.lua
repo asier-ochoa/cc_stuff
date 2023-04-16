@@ -3,16 +3,28 @@ local REQUEST_SIDE = "front"
 local SEND_PORT = 443
 local Y_HEIGHT = 30
 local C_ID = os.getComputerID()
-local NUM_KEYS_SUB = 47
+local NUM_KEYS_SUB = 48
 
 ----------------------HELPER FUNCTIONS-----------
---TODO: Add a timeout param
-local function request(modem, port, data)
+---@param modem table --Modem peripheral
+---@param port number
+---@param data any
+---@param timeout number? --In seconds
+local function request(modem, port, data, timeout)
+    local timerid
+    if timeout then
+        timerid = os.startTimer(timeout)
+    end
+
     modem.transmit(SEND_PORT, SEND_PORT, data)
     local _, response, channel = nil, nil, nil
     repeat
-        _, _, channel, _, response = os.pullEvent("modem_message")
-    until channel == port and (response ~= nil or response.recipient == C_ID)
+        local event = {os.pullEvent()}
+        if event[1] == "timer" and event[2] == timerid then
+            return {status="timeout", recipient=nil, data={}}
+        end
+        channel, response = event[3], event[5]
+    until event[1] == "modem_message" and channel == port and (response ~= nil or response.recipient == C_ID)
     return response
 end
 
@@ -37,9 +49,12 @@ end
 --Register Floor
 repeat
     local resp = request(modem, SEND_PORT, 
-        {method="registerFloor", c_id=C_ID, msg={y_coord=Y_HEIGHT}}
+        {method="registerFloor", c_id=C_ID, msg={y_coord=Y_HEIGHT}}, 5
     )
-until resp.status == "success" or resp.data.reason == "Floor already registered"
+    if resp.status == "timeout" then
+        print("No elevator_main responded, retrying...")
+    end
+until resp.recipient == C_ID and (resp.status == "success" or resp.data.reason == "Floor already registered")
 print("Registered floor")
 
 local function mainLoop()
