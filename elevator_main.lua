@@ -113,7 +113,7 @@ local api = {
             }
         end
         --Find floor
-        result_requested = table.listFind(state.registeredFloors, function (a)
+        local result_requested = table.listFind(state.registeredFloors, function (a)
             return a.c_id == c_id
         end)
         if next(result_requested) == nil then
@@ -121,8 +121,8 @@ local api = {
                 status = "failure", recipient = c_id, data = {reason = "Floor is not registered"}
             }
         end
-        requestedFloorHeight = result_requested[1].y_coord
-        currentFloorHeight = table.listFind(state.registeredFloors, function (a)
+        local requestedFloorHeight = result_requested[1].y_coord
+        local currentFloorHeight = table.listFind(state.registeredFloors, function (a)
             return a.c_id == state.elevatorFloor
         end)[1].y_coord
         if requestedFloorHeight == currentFloorHeight then
@@ -143,6 +143,41 @@ local api = {
         state.lastRequestedFloor = result_requested[1].c_id
         return {
             status = "success", data = {}
+        }
+    end,
+    ---@param c_id number --Computer id
+    ---@param args {floor: integer}
+    goToFloor = function (c_id, args)
+        print("Requested to go to floor"..args.floor)
+        local floor = state.registeredFloors[args.floor]
+        if state.isElevatorMoving or state.elevatorFloor ~= c_id then
+            return {
+                status = "failure", data = {reason = "Elevator is busy"}
+            }
+        end
+        if floor == nil then
+            return {
+                status = "failure", data = {reason = "Goto floor doesn't exist"}
+            }
+        end
+        if floor.c_id == c_id then
+            return {
+                status = "failure", data = {reason = "Elevator already at this floor"}
+            }
+        end
+
+        local reqYCoord = floor.y_coord
+        local currentFloorHeight = table.listFind(state.registeredFloors, function (a)
+            return a.c_id == state.elevatorFloor
+        end)[1].y_coord
+        if reqYCoord > currentFloorHeight then
+            redstone.setOutput(GEARSHIFT_SIDE, true)
+        else
+            redstone.setOutput(GEARSHIFT_SIDE, false)
+        end
+        state.lastRequestedFloor = floor.c_id
+        return {
+            status = "success", recipient = c_id, data = {}
         }
     end
 }
@@ -183,6 +218,7 @@ end
 
 if type(tonumber(arg[1])) ~= "number" then
     print("Usage:\n  elevator_main <elevator C_ID:int>")
+    return
 else
     state.elevatorFloor = tonumber(arg[1])
     print("Elevator must be at computer with id "..state.elevatorFloor)
