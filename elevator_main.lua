@@ -180,7 +180,10 @@ local api = {
         else
             redstone.setOutput(GEARSHIFT_SIDE, false)
         end
+        redstone.setOutput(CLUTCH_SIDE, false)
+        
         state.lastRequestedFloor = floor.c_id
+        state.isElevatorMoving = true
         return {
             status = "success", recipient = c_id, data = {}
         }
