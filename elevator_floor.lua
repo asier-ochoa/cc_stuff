@@ -87,7 +87,7 @@ local function mainLoop()
 
             local resp = request(
                 modem, SEND_PORT,
-                {method="reportElevatorFloor", c_id=C_ID, msg={floor=reqFloor}}
+                {method="goToFloor", c_id=C_ID, msg={floor=reqFloor}}
             )
             print("Reponse status: \""..resp.status.."\"")
             if resp.status ~= "success" then

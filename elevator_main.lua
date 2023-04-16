@@ -79,7 +79,7 @@ local api = {
         table.insert(state.registeredFloors, {c_id=c_id, y_coord=y_coord})
         --Sort floors from lowest to highest
         table.sort(state.registeredFloors, function (a, b)
-            return a.y_coord < b.y_coord
+            return a.y_coord > b.y_coord
         end)
         return {
             status = "success", recipient = c_id, data = {}
@@ -88,6 +88,11 @@ local api = {
     ---@param c_id number --Computer id
     --Used to receive the floor the elevator is at, stops the elevator if the floor was the last requested
     reportElevatorFloor = function (c_id)
+        if state.lastRequestedFloor ~= c_id then
+            return {
+                status = "failure", data = {reason = "You are not the last requested floor"}
+            }
+        end
         local result = table.listFind(state.registeredFloors, function (a)
             return a.c_id == c_id
         end)
