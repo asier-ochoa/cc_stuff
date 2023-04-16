@@ -48,8 +48,12 @@ end
 
 --Register Floor
 repeat
+    local implicitElevator = nil
+    if redstone.getInput(ELEVATOR_DETECTION_SIDE) then
+        implicitElevator = true
+    end
     local resp = request(modem, SEND_PORT, 
-        {method="registerFloor", c_id=C_ID, msg={y_coord=Y_HEIGHT}}, 5
+        {method="registerFloor", c_id=C_ID, msg={y_coord=Y_HEIGHT, elevatorPresent=implicitElevator}}, 5
     )
     if resp.status == "timeout" then
         print("No elevator_main responded, retrying...")

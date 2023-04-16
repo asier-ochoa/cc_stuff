@@ -60,9 +60,10 @@ local state = {
     ---@type {c_id: number, y_coord: number}[]
     registeredFloors = {}
 }
+
 local api = {
     ---@param c_id number --Computer id
-    ---@param args {y_coord: number} --y level registering floor
+    ---@param args {y_coord: number, elevatorPresent: boolean?} --y level registering floor
     registerFloor = function (c_id, args)
         local y_coord = args.y_coord
         print("--Floor at Y = "..y_coord)
@@ -74,6 +75,12 @@ local api = {
             return {
                 status = "failure", recipient = c_id, data = {reason = "Floor already registered"}
             }
+        end
+
+        --Allow for implicit elevator detection
+        if args.elevatorPresent and state.elevatorFloor == nil then
+            print("--Implicit elevator detection at computer "..c_id)
+            state.elevatorFloor = c_id
         end
 
         table.insert(state.registeredFloors, {c_id=c_id, y_coord=y_coord})
@@ -228,7 +235,9 @@ local function mainLoop()
     end
 end
 
-if type(tonumber(arg[1])) ~= "number" then
+if arg[1] == nil then
+    print("Implicit elevator detection, to specify pass the computer id as argument")
+elseif type(tonumber(arg[1])) ~= "number" then
     print("Usage:\n  elevator_main <elevator C_ID:int>")
     return
 else
