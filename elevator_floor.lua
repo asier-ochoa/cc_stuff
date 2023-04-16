@@ -3,7 +3,7 @@ local REQUEST_SIDE = "front"
 local SEND_PORT = 443
 local Y_HEIGHT = 30
 local C_ID = os.getComputerID()
-local NUM_KEYS_SUB = 1
+local NUM_KEYS_SUB = 47
 
 ----------------------HELPER FUNCTIONS-----------
 --TODO: Add a timeout param
@@ -82,7 +82,7 @@ local function mainLoop()
             end
         end
         if event[1] == "key" then
-            local reqFloor = event[2] - 1
+            local reqFloor = event[2] - NUM_KEYS_SUB
             print("Attempting to send elevator to floor "..reqFloor)
 
             local resp = request(

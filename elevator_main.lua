@@ -213,6 +213,10 @@ local function mainLoop()
             print("--Invalid message received, ignoring.\n--Details:")
             prty.pretty_print(data)
         end
+        --Debug
+        print("----STATE INFO----")
+        prty.pretty_print(state)
+        print("------------------")
     end
 end
 
