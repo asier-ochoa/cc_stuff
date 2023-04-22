@@ -20,7 +20,7 @@ local function getAllPeripherals(filter)
     for i, v in ipairs(peripheral.getNames()) do
         local pType = peripheral.getType(v)
         if filterFunc(pType, filter) ~= nil then
-            table.insert(peripheralList, {[v]=pType})
+            table[v] = pType
         end
     end
     return peripheralList
