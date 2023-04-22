@@ -20,7 +20,7 @@ local function getAllPeripherals(filter)
     for i, v in ipairs(peripheral.getNames()) do
         local pType = peripheral.getType(v)
         if filterFunc(pType, filter) ~= nil then
-            table[v] = pType
+            peripheralList[v] = pType
         end
     end
     return peripheralList
@@ -61,16 +61,16 @@ local excludedChests = {}
 local combinedItemList = {}
 
 -- Loop through every chest to refresh storageTable
----@param t StorageEntry[]
+---@param t table<string, StorageEntry>
 ---@param excluded_chests string[] -- Peripheral names of non-storage chests
 local function refreshStorage(t, excluded_chests)
-    local chests = getAllPeripherals(".*chest.*")
+    local chests = getAllPeripherals('.*chest.*')
     for k, v in pairs(chests) do
         if excludedChests[k] == nil then
             ---@type StorageEntry
             local chest = {
                 peripheral_type=v,
-                methods=peripheral.getMethods(k),
+                methods=peripheral.wrap(k),
                 contents={}
             }
             t[k] = chest
@@ -124,3 +124,6 @@ local function findItem(t, itemName, tags, displayName)
     end
     return results
 end
+
+refreshStorage(storageTable, {})
+prty.pretty_print(findItem(storageTable, "techreborn:tin_ingot"))
